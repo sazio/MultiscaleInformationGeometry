@@ -1,0 +1,29 @@
+# ON-OFF encoder of the paper (Appendix I.4, Table 4).
+# Frozen Berardino-2017 ON-OFF front-end from the plenoptic library (12-scalar
+# cascade of difference-of-Gaussians + luminance/contrast gain control, 31x31
+# kernels, input in [0, 1], output 2 x 64 x 64). The readout is one linear map
+# from the flattened 8,192 features to the 50 neurons (409,650 parameters, no
+# dropout).
+#
+# The encoders behind the paper's ON-OFF results were trained by the original
+# research code (Adam, 200 epochs) and converted with
+# tools/convert_legacy_encoder.py; the train section below applies only if this
+# readout is refitted with Stage 1.
+
+encoder:
+  name: onoff
+  readout: dense
+  backbone: plenoptic_onoff
+  kernel_size: 31            # -> output shape (2, 64, 64) for 64x64 input
+  n_neurons: 50
+  dropout: 0.0
+
+train:
+  optimizer: adamw
+  lr: 3.0e-4
+  weight_decay: 1.0e-4
+  scheduler: cosine
+  batch_size: 64
+  epochs: 100
+  validation_fraction: 0.10  # 90/10 image-level train/val split (Appendix I.2)
+  seed: 42
